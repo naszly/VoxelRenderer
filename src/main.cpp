@@ -8,6 +8,7 @@
 #include "world/world.h"
 #include "camera.h"
 #include "player_controller.h"
+#include "texture_array.h"
 
 const int SCREEN_WIDTH = 1600;
 const int SCREEN_HEIGHT = 900;
@@ -34,6 +35,20 @@ int main() {
     glEnable(GL_PROGRAM_POINT_SIZE);
     glEnable(GL_DEPTH_TEST);
 
+    TextureArray textureArray("textures/andesite.png",
+                              "textures/cobblestone.png",
+                              "textures/diorite.png",
+                              "textures/dirt.png",
+                              "textures/granite.png",
+                              "textures/sand.png",
+                              "textures/mudstone.png",
+                              "textures/stone.png");
+
+
+
+    //glActiveTexture(GL_TEXTURE0);
+    //screenShader.setInt("uTextures", 0);
+
 
     Camera camera;
     camera.setPerspective(glm::radians(60.0f), (float) SCREEN_WIDTH / (float) SCREEN_HEIGHT, NEAR_PLANE, FAR_PLANE);
@@ -42,7 +57,15 @@ int main() {
 
     World world;
     std::shared_ptr<Chunk> chunk1 = std::make_shared<Chunk>();
-    chunk1->fillRandom(0.1);
+    chunk1->fill([&](glm::ivec3 pos) -> std::optional<Voxel> {
+        auto r = rand() % 1000;
+        if (r < 70) {
+            return Voxel(pos, glm::vec3(1.0), rand() % textureArray.getLayers());
+        } else if (r < 100) {
+            return Voxel(pos, glm::vec3(rand() / (float) RAND_MAX, rand() / (float) RAND_MAX, rand() / (float) RAND_MAX));
+        }
+        return {};
+    });
     world.addChunk(glm::ivec3(0, 0, 0), chunk1);
 
 
@@ -85,7 +108,7 @@ int main() {
         if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS)
             glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-        cameraController.update((float)deltaTime);
+        cameraController.update((float) deltaTime);
 
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

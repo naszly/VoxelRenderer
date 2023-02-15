@@ -6,9 +6,10 @@ class Voxel {
 public:
     Voxel() = default;
 
-    Voxel(const glm::uvec3 &position, const glm::vec3 &color) {
+    Voxel(const glm::uvec3 &position, const glm::vec3 &color, const unsigned int texture = std::numeric_limits<uint32_t>::max()) {
         setPosition(position);
         setColor(color);
+        m_texture = texture;
     }
 
     void setPosition(const glm::uvec3 &position) {
@@ -42,4 +43,5 @@ public:
 private:
     uint32_t m_position{0};
     uint32_t m_color{0};
+    uint32_t m_texture{0};
 };

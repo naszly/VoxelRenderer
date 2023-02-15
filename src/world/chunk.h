@@ -5,6 +5,8 @@
 
 #include <set>
 #include <algorithm>
+#include <functional>
+#include <optional>
 
 #include "voxel.h"
 #include "buffer.h"
@@ -19,15 +21,17 @@ public:
     Chunk() : m_vertexBuffer(BufferUsage::DynamicDraw) {
         m_vertexArray.pushVertexBuffer(m_vertexBuffer, {
             VertexArrayAttrib(0, VertexType::UnsignedInt, 1, VertexInternalType::Int),
-            VertexArrayAttrib(1, VertexType::UnsignedInt, 1, VertexInternalType::Int)
+            VertexArrayAttrib(1, VertexType::UnsignedInt, 1, VertexInternalType::Int),
+            VertexArrayAttrib(2, VertexType::UnsignedInt, 1, VertexInternalType::Int)
         });
     }
 
-    void fillRandom(float density) {
+    void fill(const std::function<std::optional<Voxel>(glm::ivec3)>& func) {
         for (int i = 0; i < CHUNK_SIZE_CUBED; ++i) {
-            if (rand() % 1000 < density * 1000) {
-                m_voxels.emplace(indexToPosition(i),
-                                 glm::vec3(rand() % 256 / 255.0f, rand() % 256 / 255.0f, rand() % 256 / 255.0f));
+            auto pos = indexToPosition(i);
+            auto voxel = func(pos);
+            if (voxel) {
+                m_voxels.emplace(voxel.value());
             }
         }
         m_dirty = true;

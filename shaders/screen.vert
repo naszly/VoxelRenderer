@@ -2,6 +2,7 @@
 
 layout(location = 0) in uint aPackedPosition;
 layout(location = 1) in uint aPackedColor;
+layout(location = 2) in uint aTextureIndex;
 
 uniform mat4 uProjectionView;
 uniform vec3 uCameraPosition;
@@ -13,6 +14,7 @@ uniform float uChunkSize;
 
 out vec3 vPosition;
 out vec3 vColor;
+flat out uint vTextureIndex;
 
 // Fast Quadric Proj: "GPU-Based Ray-Casting of Quadratic Surfaces" http://dl.acm.org/citation.cfm?id=2386396
 void quadricProj(in vec3 osPosition, in float voxelSize, in mat4 objectToScreenMatrix, in vec2 screenSize,
@@ -59,6 +61,7 @@ vec4 unpackUnorm4x8(in uint packedColor) {
 void main(void) {
     vPosition = unpackPosition(aPackedPosition) + vec3(0.5) + uChunkPosition * uChunkSize - uCameraPosition;
     vColor = unpackUnorm4x8(aPackedColor).xyz;
+    vTextureIndex = aTextureIndex;
 
     vec4 position = uProjectionView * vec4(vPosition, 1.0);
 
