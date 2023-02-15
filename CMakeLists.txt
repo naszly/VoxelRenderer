@@ -47,11 +47,13 @@ if (NOT glm_FOUND)
     )
 endif ()
 
-add_executable(${PROJECT_NAME} main.cpp shader.h shader.cpp buffer.h vertex_array.cpp vertex_array.h world/voxel.h world/chunk.h world/world.h player_controller.cpp player_controller.h)
+file(GLOB_RECURSE SRC_FILES src/*.cpp src/*.h)
+
+add_executable(${PROJECT_NAME} ${SRC_FILES})
 
 target_link_libraries(${PROJECT_NAME} OpenGL::GL glfw GLEW::GLEW glm)
 
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR})
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/src)
 
 # custom target to copy shaders to build directory
 add_custom_target(copy_shaders ALL

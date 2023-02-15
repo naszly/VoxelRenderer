@@ -84,7 +84,6 @@ void Shader::setMat4(const char *name, const glm::mat4 &mat) const {
     }
 }
 
-
 GLenum Shader::getShaderType(const char *path) {
     std::string extension = path;
     extension = extension.substr(extension.find_last_of('.') + 1);
@@ -101,8 +100,6 @@ GLenum Shader::getShaderType(const char *path) {
         return GL_TESS_EVALUATION_SHADER;
     } else if (extension == "comp") {
         return GL_COMPUTE_SHADER;
-    } else if (extension == "glsl") {
-        return GL_NONE;
     } else {
         std::cout << "ERROR::SHADER::UNKNOWN_SHADER_TYPE: " << path << std::endl;
         return -1;
