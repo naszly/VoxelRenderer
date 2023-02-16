@@ -102,13 +102,23 @@ bool intersectBox(Box box, Ray ray, out float distance, out vec3 normal, out vec
     // then just look at the value of winding. If you need
     // texture coordinates, then use box.invDirection * hitPoint.
 
-    if (sgn.z != 0.0) {
-        texCoord = (ray.origin.xy + ray.direction.xy * distance + box.radius.xy) * box.invRadius.xy * 0.5;
-    } else if (sgn.y != 0.0) {
-        texCoord = (ray.origin.xz + ray.direction.xz * distance + box.radius.xz) * box.invRadius.xz * 0.5;
-    } else {
-        texCoord = (ray.origin.yz + ray.direction.yz * distance + box.radius.yz) * box.invRadius.yz * 0.5;
-    }
+    #define GET_TEXCOORD(UV)\
+        ((ray.origin.UV + ray.direction.UV * distance + box.radius.UV) * box.invRadius.UV * 0.5)
+
+    if (sgn.x > 0)
+        texCoord = GET_TEXCOORD(zy) * vec2(-1.0, 1.0) + vec2(1.0, 0.0);
+    else if (sgn.x < 0)
+        texCoord = GET_TEXCOORD(zy);
+    else if (sgn.y > 0)
+        texCoord = GET_TEXCOORD(xz) * vec2(-1.0, 1.0) + vec2(1.0, 0.0);
+    else if (sgn.y < 0)
+        texCoord = GET_TEXCOORD(xz);
+    else if (sgn.z > 0)
+        texCoord = GET_TEXCOORD(xy);
+    else
+        texCoord = GET_TEXCOORD(xy) * vec2(-1.0, 1.0) + vec2(1.0, 0.0);
+
+    #undef GET_TEXCOORD
 
     if (oriented) {
         normal = box.rotation * sgn;
