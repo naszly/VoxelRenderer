@@ -168,7 +168,7 @@ void Shader::checkCompileErrors(unsigned int shader, std::string_view type) {
 }
 
 void Shader::getUniforms() {
-    GLint i;
+    GLuint i;
     GLint count;
 
     GLint size; // size of the variable
@@ -181,8 +181,8 @@ void Shader::getUniforms() {
     glGetProgramiv(m_id, GL_ACTIVE_UNIFORMS, &count);
 
     for (i = 0; i < count; i++) {
-        glGetActiveUniform(m_id, (GLuint) i, bufSize, &length, &size, &type, name);
-        m_uniformLocations[name] = i;
+        glGetActiveUniform(m_id, i, bufSize, &length, &size, &type, name);
+        m_uniformLocations[name] = glGetUniformLocation(m_id, name);
     }
 }
 
