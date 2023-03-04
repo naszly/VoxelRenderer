@@ -45,15 +45,15 @@ public:
         return false;
     }
 
-    void addVoxel(const glm::ivec3 &position, const glm::vec3 &color) {
+    void addVoxel(const glm::ivec3 &position, uint32_t material) {
         glm::ivec3 chunkPosition = getChunkPosition(position);
         glm::ivec3 localPosition = getLocalPosition(position);
         auto chunk = m_chunks.find(chunkPosition);
         if (chunk != m_chunks.end()) {
-            chunk->second->addVoxel(localPosition, color);
+            chunk->second->addVoxel(Voxel{localPosition, material});
         } else {
             auto newChunk = std::make_shared<Chunk>();
-            newChunk->addVoxel(localPosition, color);
+            newChunk->addVoxel(Voxel{localPosition, material});
             addChunk(chunkPosition, newChunk);
         }
     }

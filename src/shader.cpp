@@ -106,6 +106,12 @@ GLenum Shader::getShaderType(const char *path) {
     }
 }
 
+void Shader::setBuffer(const char *name, const Buffer &buffer, unsigned int binding) const {
+    GLuint uniformBlockIndex = glGetUniformBlockIndex(m_id, name);
+    glUniformBlockBinding(m_id, uniformBlockIndex, binding);
+    glBindBufferBase(GL_UNIFORM_BUFFER, binding, buffer.getId());
+}
+
 GLuint Shader::createFromFile(const char *path) {
     std::string code;
     std::ifstream shaderFile;

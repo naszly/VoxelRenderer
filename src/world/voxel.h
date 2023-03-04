@@ -2,13 +2,18 @@
 
 #include <glm/glm.hpp>
 
+constexpr uint32_t EMPTY_VOXEL = std::numeric_limits<uint32_t>::max();
+
 class Voxel {
 public:
     Voxel() = default;
 
-    Voxel(const glm::uvec3 &position, const glm::vec3 &color) {
+    Voxel(const glm::uvec3 &position, uint32_t materialID) : m_materialID(materialID) {
         setPosition(position);
-        setColor(color);
+    }
+
+    explicit Voxel(const glm::uvec3 &position) : m_materialID(EMPTY_VOXEL) {
+        setPosition(position);
     }
 
     void setPosition(const glm::uvec3 &position) {
@@ -21,16 +26,12 @@ public:
         return {(m_position >> 20) & 0x3FF, (m_position >> 10) & 0x3FF, m_position & 0x3FF};
     }
 
-    void setColor(const glm::vec3 &color) {
-        glm::vec3 c = glm::clamp(color, 0.0f, 1.0f);
-        m_color = (uint32_t(c.r * 255) << 24) |
-                  (uint32_t(c.g * 255) << 16) |
-                  (uint32_t(c.b * 255) << 8) |
-                  0xFF;
+    [[nodiscard]] bool isEmpty() const {
+        return m_materialID == EMPTY_VOXEL;
     }
 
-    [[nodiscard]] glm::vec3 getColor() const {
-        return glm::vec3((m_color >> 24) & 0xFF, (m_color >> 16) & 0xFF, (m_color >> 8) & 0xFF) / 255.0f;
+    [[nodiscard]] uint32_t getMaterialID() const {
+        return m_materialID;
     }
 
     struct Compare {
@@ -41,5 +42,5 @@ public:
 
 private:
     uint32_t m_position{0};
-    uint32_t m_color{0};
+    uint32_t m_materialID{EMPTY_VOXEL};
 };

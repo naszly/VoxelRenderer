@@ -5,6 +5,8 @@
 
 #include <set>
 #include <algorithm>
+#include <functional>
+#include <optional>
 
 #include "voxel.h"
 #include "buffer.h"
@@ -18,11 +20,11 @@ class Chunk {
 public:
     Chunk();
 
-    void fillRandom(float density);
+    void fill(const std::function<std::optional<Voxel>(glm::ivec3)>& func);
 
-    glm::vec3 getVoxel(const glm::ivec3 &position);
+    Voxel getVoxel(const glm::ivec3 &position);
 
-    void addVoxel(const glm::ivec3 &position, const glm::vec3 &color);
+    void addVoxel(const Voxel& voxel);
 
     bool removeVoxel(const glm::ivec3 &position);
 

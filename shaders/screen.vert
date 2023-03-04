@@ -1,8 +1,19 @@
-#version 330
+#version 450
+
+#define MAX_MATERIALS 1024u
 
 layout(location = 0) in vec3 aBillboardPosition;
 layout(location = 1) in uint aPackedVoxelPosition;
-layout(location = 2) in uint aPackedVoxelColor;
+layout(location = 2) in uint aMaterialIndex;
+
+struct Material {
+    vec4 color;
+    uint texture;
+};
+
+layout(binding = 0) uniform uMaterials {
+    Material materials[MAX_MATERIALS];
+};
 
 uniform mat4 uProjectionView;
 uniform vec3 uCameraPosition;
@@ -34,7 +45,7 @@ vec4 unpackUnorm4x8(in uint packedColor) {
 
 void main(void) {
     vec3 voxelPosition = unpackPosition(aPackedVoxelPosition) + uChunkPosition * uChunkSize - uCameraPosition;
-    vec3 voxelColor = unpackUnorm4x8(aPackedVoxelColor).xyz;
+    vec3 voxelColor = materials[aMaterialIndex].color.xyz;
 
     vec3 viewDir = normalize(-voxelPosition);
     vec3 right = normalize(cross(vec3(0, 1, 0), viewDir));

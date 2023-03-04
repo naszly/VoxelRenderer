@@ -92,7 +92,7 @@ void PlayerController::update(float deltaTime) {
                 if (m_world.isVoxelEmpty(pos))
                     return false;
 
-                m_world.addVoxel(prevPos, glm::vec3(1.0f, 0.0f, 0.0f));
+                m_world.addVoxel(prevPos, 0);
                 return true;
             });
         }

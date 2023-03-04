@@ -23,32 +23,38 @@ Chunk::Chunk() : m_vertexBuffer(BufferUsage::DynamicDraw) {
 
     m_vertexArray.pushVertexBuffer(m_vertexBuffer, {
         VertexArrayAttrib(1, VertexType::UnsignedInt, 1, VertexInternalType::Int), // voxel position
-        VertexArrayAttrib(2, VertexType::UnsignedInt, 1, VertexInternalType::Int) // voxel color
+        VertexArrayAttrib(2, VertexType::UnsignedInt, 1, VertexInternalType::Int) // voxel material
     }, 1);
 }
 
-void Chunk::fillRandom(float density) {
+void Chunk::fill(const std::function<std::optional<Voxel>(glm::ivec3)> &func) {
     for (int i = 0; i < CHUNK_SIZE_CUBED; ++i) {
-        if (rand() % 1000 < density * 1000) {
-            m_voxels.emplace(indexToPosition(i),
-                             glm::vec3(rand() % 256 / 255.0f, rand() % 256 / 255.0f, rand() % 256 / 255.0f));
+        auto pos = indexToPosition(i);
+        auto voxel = func(pos);
+        if (voxel) {
+            assert(!voxel->isEmpty());
+            m_voxels.emplace(voxel.value());
         }
     }
     m_dirty = true;
 }
 
-glm::vec3 Chunk::getVoxel(const glm::ivec3 &position) {
-    auto it = m_voxels.find(Voxel(position, glm::vec3(0.0f)));
-    return it != m_voxels.end() ? it->getColor() : glm::vec3(-1.0f);
+Voxel Chunk::getVoxel(const glm::ivec3 &position) {
+    auto it = m_voxels.find(Voxel(position, 0));
+    if (it != m_voxels.end()) {
+        return *it;
+    }
+    return Voxel(position);
 }
 
-void Chunk::addVoxel(const glm::ivec3 &position, const glm::vec3 &color) {
-    m_voxels.emplace(position, color);
+void Chunk::addVoxel(const Voxel &voxel) {
+    assert(!voxel.isEmpty());
+    m_voxels.emplace(voxel);
     m_dirty = true;
 }
 
 bool Chunk::removeVoxel(const glm::ivec3 &position) {
-    if (m_voxels.erase(Voxel(position, glm::vec3(0.0f))) > 0) {
+    if (m_voxels.erase(Voxel(position)) > 0) {
         m_dirty = true;
         return true;
     }
@@ -56,7 +62,7 @@ bool Chunk::removeVoxel(const glm::ivec3 &position) {
 }
 
 bool Chunk::isVoxelEmpty(const glm::ivec3 &position) {
-    return getVoxel(position).x < 0.0f;
+    return getVoxel(position).isEmpty();
 }
 
 void Chunk::upload() {

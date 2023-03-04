@@ -6,6 +6,8 @@
 #include <unordered_map>
 #include <string>
 
+#include "buffer.h"
+
 class Shader {
 public:
     Shader() = default;
@@ -49,6 +51,8 @@ public:
     void setMat3(const char *name, const glm::mat3 &mat) const;
 
     void setMat4(const char *name, const glm::mat4 &mat) const;
+
+    void setBuffer(const char *name, const Buffer &buffer, unsigned int binding) const;
 
 private:
     GLuint m_id{0};

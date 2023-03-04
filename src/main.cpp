@@ -8,6 +8,7 @@
 #include "world/world.h"
 #include "camera.h"
 #include "player_controller.h"
+#include "material.h"
 
 const int SCREEN_WIDTH = 1600;
 const int SCREEN_HEIGHT = 900;
@@ -50,10 +51,28 @@ int main() {
     camera.setPerspective(glm::radians(60.0f), (float) SCREEN_WIDTH / (float) SCREEN_HEIGHT, NEAR_PLANE, FAR_PLANE);
     camera.setDirection(glm::vec3(0.0f, 0.0f, 1.0f));
 
+    std::vector<Material> materials {
+        Material(glm::vec4(0.0f, 0.0f, 1.0f, 1.0f)),
+        Material(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f)),
+        Material(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f)),
+        Material(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f)),
+        Material(glm::vec4(1.0f, 0.0f, 1.0f, 1.0f)),
+        Material(glm::vec4(0.0f, 1.0f, 1.0f, 1.0f)),
+        Material(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)),
+    };
+
+    Buffer materialBuffer;
+    materialBuffer.setData(materials);
 
     World world;
     std::shared_ptr<Chunk> chunk1 = std::make_shared<Chunk>();
-    chunk1->fillRandom(0.1);
+    chunk1->fill([&](glm::ivec3 pos) -> std::optional<Voxel> {
+        auto r = rand() % 1000;
+        if (r < 500) {
+            return Voxel(pos, rand() % materials.size());
+        }
+        return {};
+    });
     world.addChunk(glm::ivec3(0, 0, 0), chunk1);
 
 
@@ -67,6 +86,7 @@ int main() {
     //screenShader.setFloat("uNearPlane", NEAR_PLANE);
     //screenShader.setFloat("uFarPlane", FAR_PLANE);
     screenShader.setFloat("uReach", cameraController.getReach());
+    screenShader.setBuffer("uMaterials", materialBuffer, 0);
 
 
     while (!glfwWindowShouldClose(window)) {
