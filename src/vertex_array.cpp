@@ -30,7 +30,9 @@ void VertexArray::bind() const {
     glBindVertexArray(m_id);
 }
 
-void VertexArray::pushVertexBuffer(const Buffer &vb, std::initializer_list<const VertexArrayAttrib> attributes) {
+void VertexArray::pushVertexBuffer(const Buffer &vb,
+                                   std::initializer_list<const VertexArrayAttrib> attributes,
+                                   GLuint divisor) {
     GLsizei offset = 0;
     for (auto &attrib: attributes) {
         attrib.setVertexArrayAttribFormat(m_id, offset);
@@ -42,6 +44,8 @@ void VertexArray::pushVertexBuffer(const Buffer &vb, std::initializer_list<const
     for (auto &attrib: attributes) {
         glVertexArrayAttribBinding(m_id, attrib.location, m_bindings);
     }
+
+    glVertexArrayBindingDivisor(m_id, m_bindings, divisor);
 
     ++m_bindings;
 }

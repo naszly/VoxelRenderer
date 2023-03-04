@@ -30,8 +30,6 @@ int main() {
     glewExperimental = GL_TRUE;
     glewInit();
 
-
-    glEnable(GL_PROGRAM_POINT_SIZE);
     glEnable(GL_DEPTH_TEST);
 
 
@@ -53,8 +51,8 @@ int main() {
     screenShader.init("shaders/screen.vert", "shaders/screen.frag");
     screenShader.use();
     screenShader.setVec2("uViewportSize", glm::vec2(SCREEN_WIDTH, SCREEN_HEIGHT));
-    screenShader.setFloat("uNearPlane", NEAR_PLANE);
-    screenShader.setFloat("uFarPlane", FAR_PLANE);
+    //screenShader.setFloat("uNearPlane", NEAR_PLANE);
+    //screenShader.setFloat("uFarPlane", FAR_PLANE);
     screenShader.setFloat("uReach", cameraController.getReach());
 
 

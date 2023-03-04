@@ -1,41 +1,17 @@
 #version 330
 
-layout(location = 0) in uint aPackedPosition;
-layout(location = 1) in uint aPackedColor;
+layout(location = 0) in vec3 aBillboardPosition;
+layout(location = 1) in uint aPackedVoxelPosition;
+layout(location = 2) in uint aPackedVoxelColor;
 
 uniform mat4 uProjectionView;
 uniform vec3 uCameraPosition;
-
-uniform vec2 uViewportSize;
 
 uniform vec3 uChunkPosition;
 uniform float uChunkSize;
 
 out vec3 vPosition;
 out vec3 vColor;
-
-// Fast Quadric Proj: "GPU-Based Ray-Casting of Quadratic Surfaces" http://dl.acm.org/citation.cfm?id=2386396
-void quadricProj(in vec3 osPosition, in float voxelSize, in mat4 objectToScreenMatrix, in vec2 screenSize,
-inout vec4 position, inout float pointSize) {
-    const vec4 quadricMat = vec4(1.0, 1.0, 1.0, -1.0);
-    float sphereRadius = voxelSize * 1.732051;
-    vec4 sphereCenter = vec4(osPosition.xyz, 1.0);
-    mat4 modelViewProj = transpose(objectToScreenMatrix);
-    mat3x4 matT = mat3x4(mat3(modelViewProj[0].xyz, modelViewProj[1].xyz, modelViewProj[3].xyz) * sphereRadius);
-    matT[0].w = dot(sphereCenter, modelViewProj[0]);
-    matT[1].w = dot(sphereCenter, modelViewProj[1]);
-    matT[2].w = dot(sphereCenter, modelViewProj[3]);
-    mat3x4 matD = mat3x4(matT[0] * quadricMat, matT[1] * quadricMat, matT[2] * quadricMat);
-    vec4 eqCoefs = vec4(dot(matD[0], matT[2]),
-                        dot(matD[1], matT[2]),
-                        dot(matD[0], matT[0]),
-                        dot(matD[1], matT[1])) / dot(matD[2], matT[2]);
-    vec4 outPosition = vec4(eqCoefs.x, eqCoefs.y, 0.0, 1.0);
-    vec2 AABB = sqrt(eqCoefs.xy*eqCoefs.xy - eqCoefs.zw);
-    AABB *= screenSize;
-    position.xy = outPosition.xy * position.w;
-    pointSize = max(AABB.x, AABB.y);
-}
 
 vec3 unpackPosition(in uint packedPosition) {
     // x 10 bits, y 10 bits, z 10 bits
@@ -57,15 +33,17 @@ vec4 unpackUnorm4x8(in uint packedColor) {
 }
 
 void main(void) {
-    vPosition = unpackPosition(aPackedPosition) + vec3(0.5) + uChunkPosition * uChunkSize - uCameraPosition;
-    vColor = unpackUnorm4x8(aPackedColor).xyz;
+    vec3 voxelPosition = unpackPosition(aPackedVoxelPosition) + uChunkPosition * uChunkSize - uCameraPosition;
+    vec3 voxelColor = unpackUnorm4x8(aPackedVoxelColor).xyz;
 
-    vec4 position = uProjectionView * vec4(vPosition, 1.0);
+    vec3 viewDir = normalize(-voxelPosition);
+    vec3 right = normalize(cross(vec3(0, 1, 0), viewDir));
+    vec3 up = normalize(cross(viewDir, right));
 
-    float pointSize;
+    vec3 billboardPos = (voxelPosition + aBillboardPosition.x * right + aBillboardPosition.y * up);
 
-    quadricProj(vPosition.xyz, 0.5, uProjectionView, uViewportSize, position, pointSize);
+    gl_Position = uProjectionView * vec4(billboardPos, 1.0);
 
-    gl_Position = position;
-    gl_PointSize = pointSize;
+    vPosition = voxelPosition;
+    vColor = voxelColor;
 }

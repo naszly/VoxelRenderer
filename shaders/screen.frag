@@ -128,7 +128,9 @@ void main(void) {
     vec3 normal;
 
     if (intersectBox(box, ray, distance, normal, true, true)) {
-        gl_FragDepth = (distance - uNearPlane) / (uFarPlane - uNearPlane);
+        // overwriting the depth buffer breaks the early depth test
+        // causing significant performance loss
+        // gl_FragDepth = (distance - uNearPlane) / (uFarPlane - uNearPlane);
 
         // calculate the color and lighting
         vec3 color = vColor;

@@ -16,58 +16,21 @@ constexpr int CHUNK_SIZE_CUBED = CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE;
 
 class Chunk {
 public:
-    Chunk() : m_vertexBuffer(BufferUsage::DynamicDraw) {
-        m_vertexArray.pushVertexBuffer(m_vertexBuffer, {
-            VertexArrayAttrib(0, VertexType::UnsignedInt, 1, VertexInternalType::Int),
-            VertexArrayAttrib(1, VertexType::UnsignedInt, 1, VertexInternalType::Int)
-        });
-    }
+    Chunk();
 
-    void fillRandom(float density) {
-        for (int i = 0; i < CHUNK_SIZE_CUBED; ++i) {
-            if (rand() % 1000 < density * 1000) {
-                m_voxels.emplace(indexToPosition(i),
-                                 glm::vec3(rand() % 256 / 255.0f, rand() % 256 / 255.0f, rand() % 256 / 255.0f));
-            }
-        }
-        m_dirty = true;
-    }
+    void fillRandom(float density);
 
-    glm::vec3 getVoxel(const glm::ivec3 &position) {
-        auto it = m_voxels.find(Voxel(position, glm::vec3(0.0f)));
-        return it != m_voxels.end() ? it->getColor() : glm::vec3(-1.0f);
-    }
+    glm::vec3 getVoxel(const glm::ivec3 &position);
 
-    void addVoxel(const glm::ivec3 &position, const glm::vec3 &color) {
-        m_voxels.emplace(position, color);
-        m_dirty = true;
-    }
+    void addVoxel(const glm::ivec3 &position, const glm::vec3 &color);
 
-    bool removeVoxel(const glm::ivec3 &position) {
-        if (m_voxels.erase(Voxel(position, glm::vec3(0.0f))) > 0) {
-            m_dirty = true;
-            return true;
-        }
-        return false;
-    }
+    bool removeVoxel(const glm::ivec3 &position);
 
-    bool isVoxelEmpty(const glm::ivec3 &position) {
-        return getVoxel(position).x < 0.0f;
-    }
+    bool isVoxelEmpty(const glm::ivec3 &position);
 
-    void upload() {
-        std::vector<Voxel> voxels(m_voxels.begin(), m_voxels.end());
-        m_vertexBuffer.setData(voxels);
-        m_count = static_cast<GLsizei>(voxels.size());
-        m_dirty = false;
-    }
+    void upload();
 
-    void render() {
-        m_vertexArray.bind();
-        if (m_dirty)
-            upload();
-        glDrawArrays(GL_POINTS, 0, m_count);
-    }
+    void render();
 
     [[nodiscard]] size_t getVoxelCount() const {
         return m_voxels.size();

@@ -73,7 +73,9 @@ public:
 
     void bind() const;
 
-    void pushVertexBuffer(const Buffer &vb, std::initializer_list<const VertexArrayAttrib> attributes);
+    void pushVertexBuffer(const Buffer &vb,
+                          std::initializer_list<const VertexArrayAttrib> attributes,
+                          GLuint divisor = 0);
 
     void setElementBuffer(const Buffer &eb) const;
 
