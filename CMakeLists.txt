@@ -62,3 +62,11 @@ add_custom_target(copy_shaders ALL
         ${CMAKE_BINARY_DIR}/shaders)
 
 add_dependencies(${PROJECT_NAME} copy_shaders)
+
+# custom target to copy textures to build directory
+add_custom_target(copy_textures ALL
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_SOURCE_DIR}/textures
+        ${CMAKE_BINARY_DIR}/textures)
+
+add_dependencies(${PROJECT_NAME} copy_textures)

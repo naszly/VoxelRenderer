@@ -1,7 +1,12 @@
 #version 330
 
+#define UINT_MAX 4294967295u
+
 in vec3 vPosition;
 in vec3 vColor;
+flat in uint vTextureIndex;
+
+uniform sampler2DArray uTextures;
 
 uniform mat4 uInvProjectionView;
 
@@ -21,7 +26,7 @@ struct Box {
 };
 
 struct Ray {
-    vec3      origin;
+    vec3     origin;
     vec3     direction;
 };
 
@@ -33,7 +38,7 @@ float maxComponent(vec3 a) {
 // mat3 box.rotation:     box-to-world rotation (orthonormal 3x3 matrix) transformation
 // bool rayCanStartInBox: if true, assume the origin is never in a box. GLSL optimizes this at compile time
 // bool oriented:         if false, ignore box.rotation
-bool intersectBox(Box box, Ray ray, out float distance, out vec3 normal, const bool rayCanStartInBox, const in bool oriented) {
+bool intersectBox(Box box, Ray ray, out float distance, out vec3 normal, out vec2 texCoord, const bool rayCanStartInBox, const in bool oriented) {
 
     vec3 invRayDirection = 1.0 / ray.direction;
 
@@ -97,6 +102,24 @@ bool intersectBox(Box box, Ray ray, out float distance, out vec3 normal, const b
     // then just look at the value of winding. If you need
     // texture coordinates, then use box.invDirection * hitPoint.
 
+    #define GET_TEXCOORD(UV)\
+        ((ray.origin.UV + ray.direction.UV * distance + box.radius.UV) * box.invRadius.UV * 0.5)
+
+    if (sgn.x > 0)
+        texCoord = GET_TEXCOORD(zy) * vec2(-1.0, 1.0) + vec2(1.0, 0.0);
+    else if (sgn.x < 0)
+        texCoord = GET_TEXCOORD(zy);
+    else if (sgn.y > 0)
+        texCoord = GET_TEXCOORD(xz) * vec2(-1.0, 1.0) + vec2(1.0, 0.0);
+    else if (sgn.y < 0)
+        texCoord = GET_TEXCOORD(xz);
+    else if (sgn.z > 0)
+        texCoord = GET_TEXCOORD(xy);
+    else
+        texCoord = GET_TEXCOORD(xy) * vec2(-1.0, 1.0) + vec2(1.0, 0.0);
+
+    #undef GET_TEXCOORD
+
     if (oriented) {
         normal = box.rotation * sgn;
     } else {
@@ -126,8 +149,9 @@ void main(void) {
 
     float distance;
     vec3 normal;
+    vec2 textureCoord;
 
-    if (intersectBox(box, ray, distance, normal, true, true)) {
+    if (intersectBox(box, ray, distance, normal, textureCoord, true, true)) {
         // overwriting the depth buffer breaks the early depth test
         // causing significant performance loss
         // gl_FragDepth = (distance - uNearPlane) / (uFarPlane - uNearPlane);
@@ -140,6 +164,9 @@ void main(void) {
         vec3 specular = vec3(0.0, 0.0, 0.0);
         vec3 finalColor = color * (ambient + diffuse + specular);
         outColor = vec4(finalColor, 1.0);
+
+        if (vTextureIndex != UINT_MAX)
+            outColor *= texture(uTextures, vec3(textureCoord, vTextureIndex));
 
         // draw a circular crosshair mid-screen
         vec2 aspect = vec2(uViewportSize.x / uViewportSize.y, 1.0);

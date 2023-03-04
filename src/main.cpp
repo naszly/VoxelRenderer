@@ -9,6 +9,7 @@
 #include "camera.h"
 #include "player_controller.h"
 #include "material.h"
+#include "texture_array.h"
 
 const int SCREEN_WIDTH = 1600;
 const int SCREEN_HEIGHT = 900;
@@ -45,6 +46,20 @@ int main() {
     }
 
     glEnable(GL_DEPTH_TEST);
+
+    TextureArray textureArray("textures/andesite.png",
+                              "textures/cobblestone.png",
+                              "textures/diorite.png",
+                              "textures/dirt.png",
+                              "textures/granite.png",
+                              "textures/sand.png",
+                              "textures/mudstone.png",
+                              "textures/stone.png");
+
+
+
+    //glActiveTexture(GL_TEXTURE0);
+    //screenShader.setInt("uTextures", 0);
 
 
     Camera camera;

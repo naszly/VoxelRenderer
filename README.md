@@ -17,3 +17,6 @@ make
 - Left Mouse Button: Break block
 - Right Mouse Button: Place block
 - ESC: Exit
+
+## Textures
+Textures are from https://opengameart.org/content/1616-block-textures

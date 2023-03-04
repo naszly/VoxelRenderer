@@ -23,6 +23,7 @@ uniform float uChunkSize;
 
 out vec3 vPosition;
 out vec3 vColor;
+flat out uint vTextureIndex;
 
 vec3 unpackPosition(in uint packedPosition) {
     // x 10 bits, y 10 bits, z 10 bits
@@ -57,4 +58,5 @@ void main(void) {
 
     vPosition = voxelPosition;
     vColor = voxelColor;
+    vTextureIndex = materials[aMaterialIndex].texture;
 }
