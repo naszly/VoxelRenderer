@@ -74,6 +74,15 @@ int main() {
         Material(glm::vec4(1.0f, 0.0f, 1.0f, 1.0f)),
         Material(glm::vec4(0.0f, 1.0f, 1.0f, 1.0f)),
         Material(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)),
+
+        Material(glm::vec4(1.0f), 0),
+        Material(glm::vec4(1.0f), 1),
+        Material(glm::vec4(1.0f), 2),
+        Material(glm::vec4(1.0f), 3),
+        Material(glm::vec4(1.0f), 4),
+        Material(glm::vec4(1.0f), 5),
+        Material(glm::vec4(1.0f), 6),
+        Material(glm::vec4(1.0f), 7),
     };
 
     Buffer materialBuffer;
