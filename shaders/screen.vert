@@ -45,7 +45,7 @@ vec4 unpackUnorm4x8(in uint packedColor) {
 }
 
 void main(void) {
-    vec3 voxelPosition = unpackPosition(aPackedVoxelPosition) + uChunkPosition * uChunkSize - uCameraPosition;
+    vec3 voxelPosition = unpackPosition(aPackedVoxelPosition) + vec3(0.5) + uChunkPosition * uChunkSize - uCameraPosition;
     vec3 voxelColor = materials[aMaterialIndex].color.xyz;
 
     vec3 viewDir = normalize(-voxelPosition);
