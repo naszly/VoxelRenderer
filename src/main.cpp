@@ -17,7 +17,10 @@ const float FAR_PLANE = 1000.0f;
 
 
 int main() {
-    glfwInit();
+    if (glfwInit() == GLFW_FALSE) {
+        std::cerr << "Failed to initialize GLFW\n";
+        exit(EXIT_FAILURE);
+    }
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -25,10 +28,20 @@ int main() {
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
     GLFWwindow *window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "VoxelRayTracer", nullptr, nullptr);
+    if (!window) {
+        std::cerr << "Failed to create GLFW window\n";
+        glfwTerminate();
+        exit(EXIT_FAILURE);
+    }
+
     glfwMakeContextCurrent(window);
 
     glewExperimental = GL_TRUE;
-    glewInit();
+    if (glewInit() != GLEW_OK) {
+        std::cerr << "Failed to initialize GLEW\n";
+        glfwTerminate();
+        exit(EXIT_FAILURE);
+    }
 
     glEnable(GL_DEPTH_TEST);
 
